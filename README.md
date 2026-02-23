@@ -1,2 +1,2 @@
 # GPS
-sceane retreivel 
+GeoSpacial APP that integrate AI stuff
