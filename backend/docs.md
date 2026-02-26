@@ -1,5 +1,3 @@
-
-
 I tried to postprocess the tiles coming form the COG. this postporcess did not help with enhancing the images visually. 
 
 ```python 
