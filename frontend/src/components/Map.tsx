@@ -3,12 +3,14 @@ import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 const TILE_URL = "/stac/tiles/{z}/{x}/{y}";
-const SAUDI_ARABIA_BOUNDS: [number, number, number, number] = [32.5, 14.3, 57.7, 34.2];
+const COVERAGE: [number, number, number, number] = JSON.parse(import.meta.env.VITE_COVERAGE);
 const RIYADH_CENTER: [number, number] = [46.6753, 24.7136];
 const MIN_ZOOM: number = 5; 
 const TILE_SIZE: number = 256;
 const STARTING_ZOOM: number = 10;
 const STARTING_CENTER: [number, number] = RIYADH_CENTER;
+const MAX_PARALLEL_IMAGE_REQUESTS: number = 32;
+maplibregl.setMaxParallelImageRequests(MAX_PARALLEL_IMAGE_REQUESTS);
 
 export default function Map() {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -24,14 +26,14 @@ export default function Map() {
                         tileSize: TILE_SIZE,
                         attribution: "© OpenStreetMap contributors",
                         minzoom: MIN_ZOOM, 
-                        bounds: SAUDI_ARABIA_BOUNDS,
+                        bounds: COVERAGE,
                     },
                     sentinel: {
                         type: "raster",
                         tiles: [TILE_URL],
                         tileSize: TILE_SIZE,
                         minzoom: MIN_ZOOM, 
-                        bounds: SAUDI_ARABIA_BOUNDS,
+                        bounds: COVERAGE,
                     },
                 },
                 layers: [
@@ -53,7 +55,7 @@ export default function Map() {
             center: STARTING_CENTER,
             zoom: STARTING_ZOOM,
             minZoom: MIN_ZOOM,
-            maxBounds: SAUDI_ARABIA_BOUNDS,
+            maxBounds: COVERAGE,
         });
         return () => map.remove();
     }, []);

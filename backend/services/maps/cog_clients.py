@@ -36,7 +36,8 @@ class Sentinel2COG(COG):
         self.max_cloud_cover = max_cloud_cover
         self.image_key = image_key
         self.source_crs = source_crs
-
+            
+    
     @timeit()
     @cached(maxsize=1024)
     def find_tile(
@@ -70,7 +71,7 @@ class Sentinel2COG(COG):
             pixel_selection=FirstMethod(),
             allowed_exceptions=(RasterioIOError, TileOutsideBounds),
         )
-        return img.render(img_format="PNG")
+        return img.render(img_format="JPEG")
 
 def read_tile(url: str, x: int, y: int, z: int, **kw):
     with COGReader(url) as cog:

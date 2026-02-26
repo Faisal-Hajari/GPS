@@ -4,8 +4,10 @@ from fastapi import APIRouter, Query
 from fastapi.responses import Response
 from rio_tiler.io import Reader
 from titiler.core.utils import render_image
+import morecantile
 from services.maps.cog_clients import Sentinel2COG
 from services.core.utils import cached, timeit
+from services.core.config import settings
 import logging 
 
 logger = logging.getLogger("uvicorn")
@@ -13,6 +15,13 @@ router = APIRouter()
 
 
 TILE_TIMEOUT_SECONDS = 60
+
+
+def _tile_intersects_coverage(x: int, y: int, z: int) -> bool:
+    tms = morecantile.tms.get("WebMercatorQuad")
+    t = tms.bounds(x, y, z)
+    west, south, east, north = settings.vite_coverage
+    return not (t.right < west or t.left > east or t.top < south or t.bottom > north)
 
 
 @router.get("/stac/tiles/{z}/{x}/{y}")
@@ -24,6 +33,8 @@ async def stac_tile(
     end: datetime = Query(default=datetime(2024, 12, 31)),
 ):  
     logger.info(f"received request for: /stac/tiles/{z}/{x}/{y} | stac_tile")
+    if not _tile_intersects_coverage(x, y, z):
+        return Response(status_code=204)
     try:
         cog = Sentinel2COG()
         img_bytes = await asyncio.wait_for(
