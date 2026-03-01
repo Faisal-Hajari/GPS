@@ -1,6 +1,7 @@
 # Monorepo Structure Summary
 
 ## 1. Directory Layout
+```
 ├── apps/
 │   └── web-client/            # Vue.js frontend (pnpm/npm)
 ├── services/                  # Backend Microservices (Polyglot)
@@ -19,7 +20,7 @@
 ├── pyproject.toml             # uv Workspace Root (links services & packages)
 ├── uv.lock                    # Unified Python lockfile
 └── docker-compose.yml         # Local development orchestration
-
+```
 ## 2. Key Technology Integrations
 
 ### Python Management (uv)

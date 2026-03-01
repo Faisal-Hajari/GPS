@@ -1,7 +1,14 @@
 [project]
-name = "api"
+name = "gps"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = []
+
+[tool.uv.workspace]
+members = [
+    "packages/cog",
+    "packages/python-utils",
+    "services/backend-api",
+]

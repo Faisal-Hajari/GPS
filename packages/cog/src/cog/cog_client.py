@@ -1,15 +1,17 @@
 from datetime import datetime
+import logging
 
 from pystac_client import Client
 import morecantile
-from rio_tiler.io import COGReader
 from rio_tiler.mosaic import mosaic_reader
 from rio_tiler.mosaic.methods.defaults import FirstMethod
 from rasterio.errors import RasterioIOError
 from rio_tiler.errors import TileOutsideBounds
 
-from services.core.utils import cached, timeit
+from python_utils import cached, timeit
+from cog.utils import read_tile, tile_intersects_coverage
 
+logger = logging.getLogger("cog")
 
 class COG:
     def find_tile(
@@ -28,6 +30,12 @@ class Sentinel2COG(COG):
         image_key: str = "visual",
         source_crs: str = "EPSG:4326",
         max_cloud_cover: int = 20,
+        coverage: list[float] = [
+            44.7,
+            22.7,
+            48.7,
+            26.7,
+        ],  # a bounding box to only include covered regions in  west, south, east, north
     ):
         self.stac_url = stac_url
         self.collection = collection
@@ -36,13 +44,15 @@ class Sentinel2COG(COG):
         self.max_cloud_cover = max_cloud_cover
         self.image_key = image_key
         self.source_crs = source_crs
-            
-    
-    @timeit()
-    @cached(maxsize=1024)
+        self.coverage = coverage
+
+    @timeit(logger=logger)
+    @cached(maxsize=1024, logger=logger)
     def find_tile(
         self, x: int, y: int, z: int, date_range: tuple[datetime, datetime]
     ) -> bytes:
+        if not tile_intersects_coverage(x, y, z, self.coverage):
+            return b""
         tms = morecantile.tms.get("WebMercatorQuad")
         bounds = tms.bounds(x, y, z)
 
@@ -56,6 +66,8 @@ class Sentinel2COG(COG):
             sortby=f"+properties.{self.cloud_cover_key}",
         )
         cog_urls = [item.assets[self.image_key].href for item in search.items()]
+        if len(cog_urls) == 0:
+            return b""
         return self.build_mosaic(tuple(cog_urls), x, y, z)
 
     def build_mosaic(self, cog_urls, x, y, z) -> bytes:
@@ -72,7 +84,3 @@ class Sentinel2COG(COG):
             allowed_exceptions=(RasterioIOError, TileOutsideBounds),
         )
         return img.render(img_format="JPEG")
-
-def read_tile(url: str, x: int, y: int, z: int, **kw):
-    with COGReader(url) as cog:
-        return cog.tile(x, y, z, **kw)

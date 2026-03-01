@@ -2,27 +2,32 @@ import time
 import logging
 import functools
 
-logger = logging.getLogger("uvicorn")
 
-
-def timeit(func=None):
+def timeit(logger: logging.Logger, func=None):
+    """usage: 
+    @timeit(logger=logging.getLogger("uvicorn"))
+    def my_function():
+        ...
+    """
     def decorator(fn):
         @functools.wraps(fn)
         def wrapper(*args, **kwargs):
             start = time.perf_counter()
             result = fn(*args, **kwargs)
-            elapsed = time.perf_counter() - start
-            logger.info(f"{fn.__qualname__} took {elapsed:.4f}s")
+            logger.info(f"{fn.__qualname__} took {time.perf_counter() - start:.4f}s")
             return result
-
         return wrapper
 
     if func is not None:
         return decorator(func)
     return decorator
 
-
-def cached(maxsize: int = 128):
+def cached(logger: logging.Logger, maxsize: int = 128):
+    """usage: 
+    @cached(logger=logging.getLogger("uvicorn"))
+    def my_function():
+        ...
+    """
     def decorator(func):
         cached_func = functools.lru_cache(maxsize=maxsize)(func)
 
