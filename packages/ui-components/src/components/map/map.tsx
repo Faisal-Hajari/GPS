@@ -2,17 +2,20 @@ import { useEffect, useRef } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 
-const TILE_URL = "/stac/tiles/{z}/{x}/{y}";
-const COVERAGE: [number, number, number, number] = JSON.parse(import.meta.env.VITE_COVERAGE);
-const RIYADH_CENTER: [number, number] = [46.6753, 24.7136];
-const MIN_ZOOM: number = 5; 
-const TILE_SIZE: number = 256;
-const STARTING_ZOOM: number = 10;
-const STARTING_CENTER: [number, number] = RIYADH_CENTER;
-const MAX_PARALLEL_IMAGE_REQUESTS: number = 32;
-maplibregl.setMaxParallelImageRequests(MAX_PARALLEL_IMAGE_REQUESTS);
 
-export default function Map() {
+interface MapProps {
+    tileUrl: string;
+    coverage: [number, number, number, number];
+    minZoom?: number;
+    tileSize?: number;
+    startingZoom?: number;
+    startingCenter?: [number, number];
+    maxParallelImageRequests?: number;
+}
+
+
+export default function Map({ tileUrl, coverage, minZoom = 5, tileSize = 256, startingZoom = 10, startingCenter = [46.6753, 24.7136], maxParallelImageRequests = 32 }: MapProps) {
+    maplibregl.setMaxParallelImageRequests(maxParallelImageRequests);
     const containerRef = useRef<HTMLDivElement>(null);
     useEffect(() => {
         const map = new maplibregl.Map({
@@ -23,17 +26,17 @@ export default function Map() {
                     osm: {
                         type: "raster",
                         tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
-                        tileSize: TILE_SIZE,
+                        tileSize: tileSize,
                         attribution: "© OpenStreetMap contributors",
-                        minzoom: MIN_ZOOM, 
-                        bounds: COVERAGE,
+                        minzoom: minZoom,
+                        bounds: coverage,
                     },
                     sentinel: {
                         type: "raster",
-                        tiles: [TILE_URL],
-                        tileSize: TILE_SIZE,
-                        minzoom: MIN_ZOOM, 
-                        bounds: COVERAGE,
+                        tiles: [tileUrl],
+                        tileSize: tileSize,
+                        minzoom: minZoom,
+                        bounds: coverage,
                     },
                 },
                 layers: [
@@ -52,10 +55,10 @@ export default function Map() {
                     },
                 ],
             },
-            center: STARTING_CENTER,
-            zoom: STARTING_ZOOM,
-            minZoom: MIN_ZOOM,
-            maxBounds: COVERAGE,
+            center: startingCenter,
+            zoom: startingZoom,
+            minZoom: minZoom,
+            maxBounds: coverage,
         });
         return () => map.remove();
     }, []);

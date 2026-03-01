@@ -12,7 +12,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "private": true,
   "dependencies": {
     "@gps/ui-components": "^1.0.0",

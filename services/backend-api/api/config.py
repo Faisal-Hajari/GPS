@@ -25,9 +25,9 @@ class Settings(BaseSettings):
     collection: str = "sentinel-2-c1-l2a"
     max_items: int = 10
     cloud_cover_key: str = "eo:cloud_cover"
-    image_key: str = "visual",
+    image_key: str = "visual"
     source_crs: str = "EPSG:4326"
-    max_cloud_cover: int = (20,)
+    max_cloud_cover: int = 20
     # a bounding box to only include covered regions in  west, south, east, north
     coverage: list[float] = [44.7, 22.7, 48.7, 26.7,]
 
