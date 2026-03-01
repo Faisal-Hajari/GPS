@@ -1,0 +1,26 @@
+{
+  "name": "gps",
+  "version": "1.0.0",
+  "description": "GeoSpacial APP that integrate AI stuff",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Faisal-Hajari/GPS.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Faisal-Hajari/GPS/issues"
+  },
+  "homepage": "https://github.com/Faisal-Hajari/GPS#readme",
+  "private": true,
+  "workspaces": [
+    "apps/web-client",
+    "packages/ui-components"
+  ]
+}
