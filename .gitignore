@@ -1,5 +1,9 @@
+*.png
+*.jpeg
+*.tiff
+
 __pycache__/
-.png
-.jpeg
 node_modules
 .venv
+.vscode
+pgdata
