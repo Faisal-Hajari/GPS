@@ -21,7 +21,8 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    stac_url: str = "https://earth-search.aws.element84.com/v1"
+    # stac_url: str = "https://earth-search.aws.element84.com/v1"
+    stac_url:str = "http://127.0.0.1:8000"
     collection: str = "sentinel-2-c1-l2a"
     max_items: int = 10
     cloud_cover_key: str = "eo:cloud_cover"

@@ -52,6 +52,7 @@ class Sentinel2COG(COG):
         self, x: int, y: int, z: int, date_range: tuple[datetime, datetime]
     ) -> bytes:
         if not tile_intersects_coverage(x, y, z, self.coverage):
+            logger.warning("searched outside coverage")
             return b""
         tms = morecantile.tms.get("WebMercatorQuad")
         bounds = tms.bounds(x, y, z)
@@ -62,18 +63,16 @@ class Sentinel2COG(COG):
             bbox=[bounds.left, bounds.bottom, bounds.right, bounds.top],
             datetime=date_range,
             max_items=self.max_items,
-            query={self.cloud_cover_key: {"lt": self.max_cloud_cover}},
-            sortby=f"+properties.{self.cloud_cover_key}",
+            # query={self.cloud_cover_key: {"lt": self.max_cloud_cover}},
+            # sortby=f"+properties.{self.cloud_cover_key}",
         )
         cog_urls = [item.assets[self.image_key].href for item in search.items()]
         if len(cog_urls) == 0:
+            logger.warning("No cog was from search")
             return b""
         return self.build_mosaic(tuple(cog_urls), x, y, z)
 
     def build_mosaic(self, cog_urls, x, y, z) -> bytes:
-        if len(cog_urls) == 0:
-            return b""  # return a transparent tile a nothing
-
         img, _ = mosaic_reader(
             cog_urls,
             read_tile,
@@ -83,4 +82,6 @@ class Sentinel2COG(COG):
             pixel_selection=FirstMethod(),
             allowed_exceptions=(RasterioIOError, TileOutsideBounds),
         )
+        if img.array.mask.all():
+            logger.warning("No tiles were read!")
         return img.render(img_format="JPEG")
