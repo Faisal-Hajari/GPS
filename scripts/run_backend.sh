@@ -1,0 +1,1 @@
+uv run fastapi dev services/backend-api/api/main.py --port 8001

@@ -1,0 +1,14 @@
+[project]
+name = "stac-api"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard]>=0.134.0",
+    "pypgstac[psycopg]>=0.9.10",
+    "stac-fastapi-api>=6.2.1",
+    "stac-fastapi-extensions>=6.2.1",
+    "stac-fastapi-pgstac>=6.2.2",
+    "stac-fastapi-types>=6.2.1",
+]
