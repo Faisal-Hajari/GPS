@@ -1,0 +1,16 @@
+[project]
+name = "backend-api"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "cog",
+    "fastapi[standard]>=0.134.0",
+    "pydantic>=2.12.5",
+    "python-utils",
+]
+
+[tool.uv.sources]
+cog = { workspace = true }
+python-utils = { workspace = true }
