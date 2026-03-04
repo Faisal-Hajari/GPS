@@ -541,6 +541,16 @@ name = "gps"
 version = "0.1.0"
 source = { virtual = "." }
 
+[package.dev-dependencies]
+dev = [
+    { name = "httpx" },
+]
+
+[package.metadata]
+
+[package.metadata.requires-dev]
+dev = [{ name = "httpx", specifier = ">=0.28.1" }]
+
 [[package]]
 name = "grpcio"
 version = "1.78.0"

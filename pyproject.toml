@@ -12,3 +12,8 @@ members = [
     "packages/python-utils",
     "services/backend-api",
 ]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+]
