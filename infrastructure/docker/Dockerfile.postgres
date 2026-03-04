@@ -1,0 +1,11 @@
+FROM postgres:16.13
+
+RUN apt-get update && apt-get install -y \
+    postgresql-16-postgis-3 \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /docker-entrypoint-initdb.d
+
+COPY packages/database/init/* /docker-entrypoint-initdb.d/
+
+CMD ["postgres"]
