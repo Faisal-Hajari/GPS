@@ -1,68 +1,72 @@
 import { useEffect, useRef } from "react";
 import maplibregl from "maplibre-gl";
+import type { RasterSourceSpecification } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 
+export interface MapLayer {
+    id: string;
+    label: string;
+    source: RasterSourceSpecification;
+}
 
-interface MapProps {
-    tileUrl: string;
-    coverage: [number, number, number, number];
+export interface MapProps {
+    layers: MapLayer[];
+    activeLayer: string;
     minZoom?: number;
-    tileSize?: number;
     startingZoom?: number;
     startingCenter?: [number, number];
+    maxBounds?: [number, number, number, number];
     maxParallelImageRequests?: number;
 }
 
-
-export default function Map({ tileUrl, coverage, minZoom = 5, tileSize = 256, startingZoom = 10, startingCenter = [46.6753, 24.7136], maxParallelImageRequests = 32 }: MapProps) {
+export default function Map({
+    layers,
+    activeLayer,
+    minZoom = 5,
+    startingZoom = 10,
+    startingCenter = [46.6753, 24.7136],
+    maxBounds,
+    maxParallelImageRequests = 32,
+}: MapProps) {
     maplibregl.setMaxParallelImageRequests(maxParallelImageRequests);
     const containerRef = useRef<HTMLDivElement>(null);
+    const mapRef = useRef<maplibregl.Map | null>(null);
+
     useEffect(() => {
         const map = new maplibregl.Map({
             container: containerRef.current!,
             style: {
                 version: 8,
-                sources: {
-                    osm: {
-                        type: "raster",
-                        tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
-                        tileSize: tileSize,
-                        attribution: "© OpenStreetMap contributors",
-                        minzoom: minZoom,
-                        bounds: coverage,
-                    },
-                    sentinel: {
-                        type: "raster",
-                        tiles: [tileUrl],
-                        tileSize: tileSize,
-                        minzoom: minZoom,
-                        bounds: coverage,
-                    },
-                },
-                layers: [
-                    {
-                        id: "osm-layer",
-                        type: "raster",
-                        source: "osm"
-                    },
-                    {
-                        id: "sentinel-layer",
-                        type: "raster",
-                        source: "sentinel",
-                        paint: {
-                            "raster-opacity": 1.0
-                        },
-                    },
-                ],
+                sources: Object.fromEntries(layers.map(l => [l.id, l.source])),
+                layers: layers.map(l => ({
+                    id: l.id,
+                    type: "raster" as const,
+                    source: l.id,
+                })),
             },
             center: startingCenter,
             zoom: startingZoom,
-            minZoom: minZoom,
-            maxBounds: coverage,
+            minZoom,
+            ...(maxBounds !== undefined && { maxBounds }),
         });
+        mapRef.current = map;
         return () => map.remove();
     }, []);
-    return (
-        <div ref={containerRef} style={{ width: "100vw", height: "100vh" }} />
-    );
+
+    useEffect(() => {
+        const map = mapRef.current;
+        if (!map) return;
+        const applyVisibility = () => {
+            layers.forEach(l => {
+                map.setLayoutProperty(l.id, "visibility", l.id === activeLayer ? "visible" : "none");
+            });
+        };
+        if (map.isStyleLoaded()) {
+            applyVisibility();
+        } else {
+            map.once("load", applyVisibility);
+        }
+    }, [activeLayer]);
+
+    return <div ref={containerRef} style={{ width: "100%", height: "100%" }} />;
 }
