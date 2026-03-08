@@ -6,6 +6,6 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-COPY packages/database/init/* /docker-entrypoint-initdb.d/
+COPY packages/database/migration/* /docker-entrypoint-initdb.d/
 
 CMD ["postgres"]
