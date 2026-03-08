@@ -15,7 +15,8 @@ members = [
     "packages/python-utils",
     "services/backend-api",
     "services/stac-api",
-    "tools"
+    "tools",
+    "packages/model-serving",
 ]
 
 [dependency-groups]
